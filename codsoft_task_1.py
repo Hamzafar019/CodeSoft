@@ -1,7 +1,9 @@
 import random
-
+import re
 class FoodOrderChatbot:
     def __init__(self):
+        self.order=""
+        self.menu=["pizza","burgers","sandwiches","salads","pastas"]
         self.responses = {
             "greetings": ["Hello!", "Hi there!", "Hey!"],
             "farewells": ["Goodbye!", "See you later!", "Take care!"],
@@ -11,11 +13,15 @@ class FoodOrderChatbot:
             "name": "I'm just a chatbot developed by MHZ.",
             "age": "I'm sorry, I'm not programmed to know my age.",
             "gratitude": ["You're welcome!", "Glad I could help!", "No problem!"],
-            "customize": ["What will you like to order", "I'm here to help you"],
+            "customize": ["What would you like to order?", "How can I assist you?"],
             "capabilities": "I can tell jokes, provide information about myself, and respond to greetings, farewells, and gratitude."
         }
         self.recommended_questions = {
-            "default": ["Can you tell me a joke?", "What's your name?", "How can you help me?","What's on the menu?", "Do you have any specials?", "Can I customize my order?","How can I provide feedback on my order?", "Is there a customer satisfaction survey?", "Can I leave a review?","What payment methods do you accept?", "Is there a minimum order for delivery?", "Do you offer any discounts?","How long will my order take?", "Can you track my delivery?", "Is my food ready yet?"]
+            "default": ["Can you tell me a joke?", "What's your name?", "How can you help me?", "What's on the menu?", 
+                        "Do you have any specials?", "Can I customize my order?", "How can I provide feedback on my order?", 
+                        "Is there a customer satisfaction survey?", "Can I leave a review?", "What payment methods do you accept?", 
+                        "Is there a minimum order for delivery?", "Do you offer any discounts?", "How long will my order take?", 
+                        "Can you track my delivery?", "Is my food ready yet?"]
         }
 
     def respond(self, user_input):
@@ -44,7 +50,7 @@ class FoodOrderChatbot:
             return random.choice(self.responses["gratitude"])
         elif self.check_intent(user_input, ["status", "order status", "track"]):
             return self.check_order_status()
-        elif self.check_intent(user_input, ["ready", "preparation", "prepared", "long"]):
+        elif self.check_intent(user_input, ["ready", "preparation", "prepared", "long","time left"]):
             return self.order_preparation_time()
         elif self.check_intent(user_input, ["delivery","minimum order", "delivery charges","minimum"]):
             return self.charges_and_minimum()
@@ -64,32 +70,56 @@ class FoodOrderChatbot:
     def check_intent(self, user_input, keywords):
         return any(keyword in user_input.lower() for keyword in keywords)
 
+    
     def take_order(self):
-        return "Sure, what would you like to order?"
+        print("\n\nWhat would you like to have? to finish ordering type 'done' \n -------------------------------------------------------------------\n")
+        self.order = ""
+        while True:
+            user_input = input("You: ")
+            if user_input.lower() == "done":
+                break
+            else:
+                match = re.match(r'(\d+)\s+(.*)', user_input)
+                if match:
+                    if(match.group(2) in self.menu):
+                        quantity = match.group(1)
+                        item = match.group(2)
+                        self.order += f"{quantity} {item}\n"
+                    else:
+                        print(f"Our menu includes {self.menu}")
+                else:
+                    print("Bot: Please include both quantity and item name (e.g., '3 pizza'). To finish type 'done'")
+        return "Your order:\n" + self.order.strip()
 
     def special_food(self):
-        return "Sure, We have pepparoni pizza as special"
+        return "Sure, we have pepperoni pizza as today's special."
 
     def charges_and_minimum(self):
-        return "There are no delivery charges and no minimum order requirements"
+        return "There are no delivery charges and no minimum order requirements."
+
     def work(self):
-        return "I can take your order, tell you a joke, check your order status?"
+        return "I can take your order, tell you a joke, or check your order status."
 
     def check_order_status(self):
         return "I'm sorry, I cannot provide the status of your order/delivery at the moment."
 
     def order_preparation_time(self):
-        return "It will take just 5 minutes more"
+        if(len(self.order)>3):
+            return "It will take just 5 minutes more."
+        else:
+            return "you don't have any order"
+
     def food_options(self):
-        return "Our menu includes pizza, burgers, sandwiches, salads, and pasta."
+        return f"Our menu includes {self.menu}"
 
     def payment_options(self):
         return "We accept cash, credit/debit cards, and online payment methods."
 
     def discounts(self):
-        return "there is 10% off on today's special"
+        return "There is a 10% off on today's special."
+
     def leave_feedback(self):
-        return "You can leave feedback by contacting our customer support phone# 03000000000 or filling out our online survey.'Link'"
+        return "You can leave feedback by contacting our customer support at phone number 03000000000 or filling out our online survey."
 
     def get_recommendation(self, user_input):
         for intent, questions in self.recommended_questions.items():
